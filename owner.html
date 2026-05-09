@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Dashboard - Mystic Charms</title>
+
+<style>
+* { box-sizing: border-box; }
+body {
+    font-family: Arial, sans-serif;
+    background: #f8e8f0;
+    padding: 20px;
+    margin: 0;
+}
+
+/* ── LOGIN ── */
+.login {
+    max-width: 400px;
+    margin: 100px auto;
+    background: white;
+    padding: 35px 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.login h2 { color: #3d0026; margin-bottom: 10px; }
+.login input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-top: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    display: block;
+}
+.login button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 14px;
+    border-radius: 8px;
+    background: #3d0026;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+}
+.login button:hover { background: #6b0044; }
+
+/* ── DASHBOARD ── */
+.dashboard {
+    display: none;
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* ── STATS ── */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+}
+.stat-card {
+    background: white;
+    padding: 18px 15px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.stat-card h3 { font-size: 24px; color: #3d0026; margin-bottom: 4px; }
+.stat-card p  { font-size: 13px; color: #888; margin: 0; }
+
+/* ── SECTION TITLE ── */
+.section-title {
+    margin-top: 35px;
+    margin-bottom: 16px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #3d0026;
+    border-bottom: 2px solid #3d0026;
+    padding-bottom: 8px;
+}
+
+/* ── ORDER CARD ── */
+.order-card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border-left: 5px solid #3d0026;
+    overflow: hidden;
+}
+.order-card.completed  { border-left-color: #28a745; opacity: 0.85; }
+.order-card.rating-card { border-left-color: #c8920a; }
+
+/* ── ORDER HEADER ── */
+.order-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.order-number {
+    font-size: 15px;
+    font-weight: 700;
+    color: #3d0026;
+    flex-shrink: 0;
+}
+.order-date {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* ── STATUS PILL ── */
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+.pill-confirmed  { background: #fff3cd; color: #7a5800; }
+.pill-preparing  { background: #cce5ff; color: #003d7a; }
+.pill-shipped    { background: #d1ecf1; color: #0a4f5a; }
+.pill-delivered  { background: #d4edda; color: #145520; }
+.pill-completed  { background: #d4edda; color: #145520; }
+.pill-pending    { background: #ffe0b2; color: #7a3700; }
+
+/* ── ORDER BODY ── */
+.order-body { padding: 16px 20px; }
+
+/* ── INFO GRID ── */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+.info-cell {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+.info-cell:nth-child(2n)        { border-right: none; }
+.info-cell:nth-last-child(-n+2) { border-bottom: none; }
+.info-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+.info-value { color: #2d2d2d; font-weight: 500; }
+
+/* ── ADDRESS BLOCK (full width cell) ── */
+.info-cell.full-width {
+    grid-column: 1 / -1;
+    border-right: none;
+}
+.address-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.address-line {
+    font-size: 13px;
+    color: #2d2d2d;
+    font-weight: 500;
+    line-height: 1.5;
+}
+.address-landmark {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* ── PAYMENT BADGE ── */
+.pay-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.pay-cash  { background: #e8f5e9; color: #2e7d32; }
+.pay-gcash { background: #e8eaf6; color: #283593; }
+.pay-sub-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 5px;
+}
+.psub-pending  { background: #fff3cd; color: #7a5800; }
+.psub-cash     { background: #e8f5e9; color: #2e7d32; }
+.psub-verified { background: #d4edda; color: #145520; }
+
+/* ── ITEMS TABLE ── */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    font-size: 13px;
+}
+.items-table th {
+    text-align: left;
+    padding: 7px 10px;
+    background: #f8f0f4;
+    color: #3d0026;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.items-table th:last-child { text-align: right; }
+.items-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f5f5f5;
+    color: #333;
+}
+.items-table td:last-child { text-align: right; font-weight: 600; }
+.items-table tr:last-child td { border-bottom: none; }
+
+/* ── ORDER SUMMARY ROWS ── */
+.order-summary {
+    border-top: 1px solid #f0f0f0;
+    margin-top: 2px;
+    padding-top: 6px;
+    margin-bottom: 0;
+}
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    font-size: 13px;
+    color: #555;
+}
+.summary-row.delivery-fee {
+    color: #3d5a8a;
+}
+.summary-row.delivery-fee span:first-child::before {
+    content: "";
+}
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px 0;
+    border-top: 2px solid #f0f0f0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #3d0026;
+    margin-top: 4px;
+}
+
+/* ── STATUS UPDATE SECTION ── */
+.update-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f0f0f0;
+}
+.update-label {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+.status-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.status-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1.5px solid #ddd;
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.15s;
+    width: auto;
+    margin: 0;
+}
+.status-btn:hover      { border-color: #3d0026; color: #3d0026; background: #fff5f8; }
+.status-btn.active-btn { border-color: #3d0026; background: #3d0026; color: white; }
+
+.confirm-update-btn {
+    padding: 9px 22px;
+    background: #3d0026;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: auto;
+    margin: 0;
+}
+.confirm-update-btn:hover   { background: #6b0044; }
+.confirm-update-btn.success { background: #28a745; }
+.confirm-update-btn:disabled { background: #999; cursor: not-allowed; }
+
+/* ── ACCOUNTS ── */
+.account-card {
+    background: white;
+    padding: 14px 18px;
+    margin-top: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+}
+.account-name { font-weight: 600; color: #2d2d2d; }
+.account-role {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 10px;
+    background: #f0e0ea;
+    color: #3d0026;
+    text-align: center;
+}
+
+/* ── STAR DISPLAY ── */
+.star-display {
+    color: #ffbf00;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 1024px) {
+    .info-grid { gap: 0; }
+    .stat-card { padding: 16px 12px; }
+    .stat-card h3 { font-size: 22px; }
+    .stat-card p { font-size: 12px; }
+}
+
+@media (max-width: 768px) {
+    body { padding: 14px; }
+    .stats { grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat-card { padding: 14px 10px; border-radius: 10px; }
+    .stat-card h3 { font-size: 18px; }
+    .stat-card p { font-size: 11px; }
+
+    .section-title { font-size: 17px; margin-top: 26px; margin-bottom: 14px; }
+
+    .order-header { padding: 12px 14px; gap: 8px; }
+    .order-number { font-size: 13px; }
+    .order-date { font-size: 11px; }
+    .status-pill { font-size: 11px; padding: 3px 10px; }
+
+    .order-body { padding: 14px 14px; }
+
+    .info-grid { grid-template-columns: 1fr 1fr; }
+    .info-cell { padding: 9px 12px; font-size: 12px; }
+    .info-cell.full-width { grid-column: 1 / -1; border-right: none; }
+    .info-label { font-size: 10px; }
+    .info-value { font-size: 12px; }
+
+    .items-table { font-size: 12px; }
+    .items-table th { font-size: 10px; padding: 6px 8px; }
+    .items-table td { padding: 7px 8px; }
+    .summary-row { font-size: 12px; padding: 4px 8px; }
+    .total-row { font-size: 14px; }
+
+    .status-btn { padding: 6px 12px; font-size: 12px; }
+    .confirm-update-btn { padding: 8px 18px; font-size: 12px; }
+
+    .account-card { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 14px; }
+    .account-name { font-size: 13px; }
+
+    .product-card { padding: 12px 14px; }
+    .product-name { font-size: 14px; }
+    .product-price { font-size: 12px; }
+    .soldout-toggle { padding: 7px 12px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+    body { padding: 10px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+    .stat-card { padding: 12px 8px; border-radius: 8px; }
+    .stat-card h3 { font-size: 16px; }
+    .stat-card p { font-size: 10px; }
+
+    .section-title { font-size: 15px; margin-top: 22px; margin-bottom: 12px; padding-bottom: 6px; }
+
+    .order-card { border-radius: 10px; margin-bottom: 14px; }
+    .order-header { padding: 10px 12px; flex-wrap: wrap; }
+    .order-number { font-size: 12px; }
+    .order-date { font-size: 10px; width: 100%; margin-left: 0; margin-top: 2px; }
+    .status-pill { font-size: 10px; padding: 3px 8px; }
+
+    .order-body { padding: 12px 12px; }
+
+    .info-grid { grid-template-columns: 1fr; }
+    .info-cell {
+        padding: 8px 10px;
+        font-size: 12px;
+        border-right: none !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+    }
+    .info-cell:last-child { border-bottom: none !important; }
+    .info-cell.full-width { grid-column: 1; }
+    .info-label { font-size: 10px; }
+    .info-value { font-size: 12px; }
+    .address-line { font-size: 12px; }
+    .address-landmark { font-size: 11px; }
+
+    .items-table { font-size: 12px; }
+    .items-table th { font-size: 10px; padding: 5px 7px; }
+    .items-table td { padding: 6px 7px; }
+    .summary-row { font-size: 11px; padding: 3px 7px; }
+    .total-row { font-size: 13px; padding: 8px 7px 0; }
+
+    .update-section { margin-top: 12px; padding-top: 12px; }
+    .status-options { gap: 6px; }
+    .status-btn { padding: 6px 10px; font-size: 11px; border-radius: 5px; }
+    .confirm-update-btn { padding: 7px 16px; font-size: 12px; border-radius: 5px; }
+
+    .account-card { grid-template-columns: 1fr; gap: 6px; padding: 10px 12px; border-radius: 8px; }
+    .account-name { font-size: 13px; }
+
+    .product-card { padding: 10px 12px; border-radius: 8px; gap: 10px; }
+    .product-id { font-size: 11px; }
+    .product-name { font-size: 13px; }
+    .product-price { font-size: 12px; }
+    .soldout-toggle { padding: 6px 10px; font-size: 11px; border-radius: 6px; }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    body { padding: 8px; }
+    .stats { grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
+    .stat-card { padding: 8px 6px; }
+    .stat-card h3 { font-size: 14px; }
+    .stat-card p { font-size: 9px; }
+    .section-title { font-size: 14px; margin-top: 14px; margin-bottom: 10px; }
+    .info-cell { padding: 5px 8px; font-size: 11px; }
+    .order-body { padding: 10px 12px; }
+}
+
+/* ── PRODUCT INVENTORY ── */
+.product-card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #3d0026;
+}
+.product-card.sold-out {
+    border-left-color: #dc3545;
+    opacity: 0.7;
+    background: #fff5f5;
+}
+.product-info { flex: 1; }
+.product-id { font-size: 12px; color: #999; font-weight: 600; }
+.product-name { font-size: 15px; font-weight: 600; color: #3d0026; margin-top: 4px; }
+.product-price { font-size: 13px; color: #666; margin-top: 2px; }
+.soldout-toggle {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid #dc3545;
+    background: white;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.soldout-toggle:hover { background: #dc3545; color: white; }
+.soldout-toggle.active { background: #dc3545; color: white; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="loginBox">
+    <h2>Owner Login</h2>
+    <input type="password" id="pass" placeholder="Enter password"
+           onkeydown="if(event.key==='Enter') login()">
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+
+    <div class="stats">
+        <div class="stat-card"><h3 id="statOrders">0</h3><p>Total Orders</p></div>
+        <div class="stat-card"><h3 id="statActive">0</h3><p>Active</p></div>
+        <div class="stat-card"><h3 id="statCompleted">0</h3><p>Completed</p></div>
+        <div class="stat-card"><h3 id="statSales">₱0</h3><p>Total Sales</p></div>
+        <div class="stat-card"><h3 id="statRating">0.0 / 5</h3><p>Avg Rating</p></div>
+        <div class="stat-card"><h3 id="statAccounts">0</h3><p>Accounts</p></div>
+    </div>
+
+    <h1 class="section-title">Product Inventory</h1>
+    <div id="productList"></div>
+
+    <h1 class="section-title">Active Orders</h1>
+    <div id="activeList"></div>
+
+    <h1 class="section-title">Completed Orders</h1>
+    <div id="completedList"></div>
+
+    <h1 class="section-title">Ratings</h1>
+    <div id="ratingList"></div>
+
+    <h1 class="section-title">Accounts</h1>
+    <div id="accountsList"></div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCumgRBwiwvh0GL1B9DF2OpRDMigVa6y5g",
+    authDomain: "beadsncharmsshop-0.firebaseapp.com",
+    projectId: "beadsncharmsshop-0",
+    storageBucket: "beadsncharmsshop-0.firebasestorage.app",
+    messagingSenderId: "803662118321",
+    appId: "1:803662118321:web:0b1dbf0545f7cdfc5bd190",
+    measurementId: "G-TXTWGRXXDK",
+    databaseURL: "https://beadsncharmsshop-0-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const PASSWORD = "mystic2024";
+
+const pendingSelections = {};
+
+const products = {
+    "001": { name: "Pink Mirage Bracelet",    price: 40, image: "image2.jpg"  },
+    "002": { name: "Pastel Dream Bracelet",   price: 35, image: "image3.jpg"  },
+    "003": { name: "Starlit Bloom Bracelet",  price: 35, image: "image4.jpg"  },
+    "004": { name: "Flutter Hearts Bracelet", price: 30, image: "image11.jpg" },
+    "005": { name: "Lovewing Bracelet",       price: 30, image: "image10.jpg" },
+    "006": { name: "Dewdrop Bracelet",        price: 35, image: "image12.jpg" },
+    "011": { name: "Blossom Buddy Keychain",  price: 35, image: "image17.jpg" },
+    "012": { name: "Daydream Keychain",       price: 40, image: "image18.jpg" },
+    "013": { name: "Sunny Charm Keychain",    price: 35, image: "image19.jpg" }
+};
+
+function isDone(status) {
+    return status === "delivered" || status === "completed";
+}
+
+async function checkAdminAccess() {
+    const session = JSON.parse(localStorage.getItem("userLogin"));
+    if (!session) { alert("Please login first."); window.location.href = "login.html"; return false; }
+    const snap = await get(ref(db, "users"));
+    if (!snap.exists()) { alert("No users found."); return false; }
+    const user = Object.values(snap.val()).find(u => u.email === session.email);
+    if (!user || user.role !== "admin") { alert("Access denied. Admin only."); window.location.href = "index.html"; return false; }
+    return true;
+}
+
+async function getOrders() {
+    const snap = await get(ref(db, "orders"));
+    return snap.exists() ? Object.values(snap.val()) : [];
+}
+async function getUsers() {
+    const snap = await get(ref(db, "users"));
+    return snap.exists() ? Object.values(snap.val()) : [];
+}
+
+function statusPillClass(status) {
+    const map = {
+        confirmed: "pill-confirmed", preparing: "pill-preparing",
+        shipped: "pill-shipped", delivered: "pill-delivered",
+        completed: "pill-completed", pending_verification: "pill-pending"
+    };
+    return map[status] || "pill-confirmed";
+}
+
+function statusLabel(status) {
+    const map = {
+        confirmed: "Confirmed", preparing: "Preparing", shipped: "Shipped",
+        delivered: "Delivered", completed: "Completed", pending_verification: "Pending Verification"
+    };
+    return map[status] || status || "Confirmed";
+}
+
+function paymentHTML(order) {
+    const method  = (order.paymentMethod || "").toLowerCase();
+    const pStatus = order.paymentStatus  || "";
+    const label   = method === "gcash" ? "GCash" : "Cash";
+    const cls     = method === "gcash" ? "pay-gcash" : "pay-cash";
+    let subLabel = "", subCls = "";
+    if (pStatus === "pending_verification")  { subLabel = "Pending Verification"; subCls = "psub-pending"; }
+    else if (pStatus.startsWith("cash_on"))  { subLabel = "Pay on " + (pStatus.includes("delivery") ? "Delivery" : "Meetup"); subCls = "psub-cash"; }
+    else if (pStatus === "verified")         { subLabel = "Verified"; subCls = "psub-verified"; }
+    return `<span class="pay-badge ${cls}">${label}</span>${subLabel ? `<span class="pay-sub-badge ${subCls}">${subLabel}</span>` : ""}`;
+}
+
+function itemsTableHTML(items) {
+    if (!items || !items.length) return "<p style='font-size:13px;color:#999;'>No items</p>";
+    const rows = items.map(item => {
+        const p = Number(item.price) || 0;
+        const q = Number(item.quantity) || 0;
+        return `<tr>
+            <td>${item.name || "Item"}</td>
+            <td style="text-align:center;">${q}</td>
+            <td>₱${p.toFixed(2)}</td>
+            <td>₱${(p * q).toFixed(2)}</td>
+        </tr>`;
+    }).join("");
+    return `<table class="items-table">
+        <thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
+        <tbody>${rows}</tbody>
+    </table>`;
+}
+
+/**
+ * Renders the order price summary: subtotal, optional delivery fee, and total.
+ */
+function orderSummaryHTML(order) {
+    const items       = Array.isArray(order.items) ? order.items : [];
+    const subtotal    = items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 0), 0);
+    const deliveryFee = Number(order.deliveryFee) || 0;
+    const total       = Number(order.total) || (subtotal + deliveryFee);
+
+    let html = `<div class="order-summary">`;
+
+    // Only show subtotal row if there's a delivery fee (otherwise total alone is enough)
+    if (deliveryFee > 0) {
+        html += `
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₱${subtotal.toFixed(2)}</span>
+            </div>
+            <div class="summary-row delivery-fee">
+                <span>Delivery Fee</span>
+                <span>₱${deliveryFee.toFixed(2)}</span>
+            </div>`;
+    }
+
+    html += `</div>
+        <div class="total-row">
+            <span>Total</span>
+            <span>₱${total.toFixed(2)}</span>
+        </div>`;
+
+    return html;
+}
+
+/**
+ * Build the address cell HTML for an order.
+ * Supports both the new structured addressData object and the legacy flat address string.
+ */
+function addressCellHTML(order) {
+    if (order.delivery === "meetup") {
+        return `
+            <div class="info-cell full-width">
+                <div class="info-label">Delivery / Meetup</div>
+                <div class="info-value">Meetup — <span style="color:#888;font-style:italic;">coordinate via social media / Contact Us</span></div>
+            </div>`;
+    }
+
+    if (order.delivery === "delivery") {
+        if (order.addressData && (order.addressData.barangay || order.addressData.city)) {
+            const { barangay, city, landmark } = order.addressData;
+            return `
+                <div class="info-cell full-width">
+                    <div class="info-label">Delivery Address</div>
+                    <div class="address-detail">
+                        ${barangay ? `<div class="address-line">Brgy. ${barangay}${city ? `, ${city}` : ""}</div>` : ""}
+                        ${landmark ? `<div class="address-landmark">Near: ${landmark}</div>` : ""}
+                    </div>
+                </div>`;
+        }
+        if (order.address) {
+            return `
+                <div class="info-cell full-width">
+                    <div class="info-label">Delivery Address</div>
+                    <div class="info-value">${order.address}</div>
+                </div>`;
+        }
+        return `
+            <div class="info-cell full-width">
+                <div class="info-label">Delivery Address</div>
+                <div class="info-value" style="color:#999;font-style:italic;">No address provided</div>
+            </div>`;
+    }
+
+    if (order.address) {
+        return `
+            <div class="info-cell full-width">
+                <div class="info-label">Address</div>
+                <div class="info-value">${order.address}</div>
+            </div>`;
+    }
+    return "";
+}
+
+function starsHTML(rating) {
+    const r = Math.max(0, Math.min(5, Number(rating) || 0));
+    return Array.from({ length: 5 }, (_, i) => i < r ? "★" : "☆").join("");
+}
+
+function updateSectionHTML(order) {
+    const statuses = ["confirmed", "preparing", "shipped", "delivered"];
+    const current  = order.status || "confirmed";
+    const btns = statuses.map(s => `
+        <button class="status-btn ${s === current ? "active-btn" : ""}"
+                onclick="selectStatus('${order.id}', '${s}', this)">${statusLabel(s)}</button>
+    `).join("");
+    return `
+        <div class="update-section">
+            <div class="update-label">Update Status</div>
+            <div class="status-options">${btns}</div>
+            <button class="confirm-update-btn" id="ubtn-${order.id}"
+                    onclick="confirmUpdate('${order.id}')">Save Status</button>
+        </div>`;
+}
+
+function getDate(order) {
+    if (!order.date) return "No date";
+    return new Date(order.date).toLocaleString("en-US", {
+        month:"short", day:"numeric", year:"numeric", hour:"2-digit", minute:"2-digit"
+    });
+}
+
+function num(v) { return isNaN(Number(v)) ? 0 : Number(v); }
+
+window.selectStatus = function (orderId, status, el) {
+    pendingSelections[orderId] = status;
+    el.closest(".status-options").querySelectorAll(".status-btn")
+      .forEach(b => b.classList.remove("active-btn"));
+    el.classList.add("active-btn");
+};
+
+window.confirmUpdate = async function (orderId) {
+    const newStatus = pendingSelections[orderId];
+    if (!newStatus) { alert("Please select a status first."); return; }
+    const btn = document.getElementById(`ubtn-${orderId}`);
+    btn.textContent = "Saving...";
+    btn.disabled    = true;
+    try {
+        await update(ref(db, `orders/${orderId}`), { status: newStatus });
+        btn.textContent = "Saved!";
+        btn.classList.add("success");
+        setTimeout(() => load(), 1200);
+    } catch (e) {
+        console.error(e);
+        alert("Failed to update. Please try again.");
+        btn.textContent = "Save Status";
+        btn.disabled    = false;
+    }
+};
+
+window.login = async function () {
+    const allowed = await checkAdminAccess();
+    if (!allowed) return;
+    if (document.getElementById("pass").value === PASSWORD) {
+        document.getElementById("loginBox").style.display  = "none";
+        document.getElementById("dashboard").style.display = "block";
+        load();
+    } else {
+        alert("Wrong password");
+    }
+};
+
+async function load() {
+    const orders = await getOrders();
+    const users  = await getUsers();
+    const active    = orders.filter(o => !isDone(o.status));
+    const completed = orders.filter(o =>  isDone(o.status));
+    const rated     = orders.filter(o => Number(o.rating) > 0 || o.hasRated === true);
+    const sales = orders.reduce((s, o) => s + num(o.total), 0);
+    const avg   = rated.length
+        ? (rated.reduce((s, o) => s + num(o.rating), 0) / rated.length).toFixed(1)
+        : "0.0";
+
+    document.getElementById("statOrders").textContent    = orders.length;
+    document.getElementById("statActive").textContent    = active.length;
+    document.getElementById("statCompleted").textContent = completed.length;
+    document.getElementById("statSales").textContent     = "₱" + sales.toFixed(2);
+    document.getElementById("statRating").textContent    = avg + " / 5";
+    document.getElementById("statAccounts").textContent  = users.length;
+
+    renderProducts();
+    renderActive(active);
+    renderCompleted(completed);
+    renderRatings(rated);
+    renderAccounts(users);
+}
+
+function renderActive(active) {
+    const div = document.getElementById("activeList");
+    if (!active.length) { div.innerHTML = "<p style='color:#999;font-size:14px;'>No active orders yet.</p>"; return; }
+    div.innerHTML = active.slice().reverse().map((order, i) => {
+        const items = Array.isArray(order.items) ? order.items : [];
+        return `
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-number">Order #${active.length - i}</span>
+                <span class="status-pill ${statusPillClass(order.status)}">${statusLabel(order.status)}</span>
+                <span class="order-date">${getDate(order)}</span>
+            </div>
+            <div class="order-body">
+                <div class="info-grid">
+                    <div class="info-cell"><div class="info-label">Customer</div><div class="info-value">${order.name || "N/A"}</div></div>
+                    <div class="info-cell"><div class="info-label">Phone</div><div class="info-value">${order.phone || "N/A"}</div></div>
+                    <div class="info-cell"><div class="info-label">Method</div><div class="info-value">${order.delivery ? order.delivery.charAt(0).toUpperCase() + order.delivery.slice(1) : "N/A"}</div></div>
+                    <div class="info-cell"><div class="info-label">Payment</div><div class="info-value">${paymentHTML(order)}</div></div>
+                    ${addressCellHTML(order)}
+                </div>
+                ${itemsTableHTML(items)}
+                ${orderSummaryHTML(order)}
+                ${updateSectionHTML(order)}
+            </div>
+        </div>`;
+    }).join("");
+}
+
+function renderCompleted(completed) {
+    const div = document.getElementById("completedList");
+    if (!completed.length) { div.innerHTML = "<p style='color:#999;font-size:14px;'>No completed orders yet.</p>"; return; }
+    div.innerHTML = completed.slice().reverse().map((order, i) => {
+        const items = Array.isArray(order.items) ? order.items : [];
+        return `
+        <div class="order-card completed">
+            <div class="order-header">
+                <span class="order-number">Completed #${completed.length - i}</span>
+                <span class="status-pill ${statusPillClass(order.status)}">${statusLabel(order.status)}</span>
+                <span class="order-date">${getDate(order)}</span>
+            </div>
+            <div class="order-body">
+                <div class="info-grid">
+                    <div class="info-cell"><div class="info-label">Customer</div><div class="info-value">${order.name || "N/A"}</div></div>
+                    <div class="info-cell"><div class="info-label">Phone</div><div class="info-value">${order.phone || "N/A"}</div></div>
+                    <div class="info-cell"><div class="info-label">Method</div><div class="info-value">${order.delivery ? order.delivery.charAt(0).toUpperCase() + order.delivery.slice(1) : "N/A"}</div></div>
+                    <div class="info-cell"><div class="info-label">Payment</div><div class="info-value">${paymentHTML(order)}</div></div>
+                    ${addressCellHTML(order)}
+                </div>
+                ${itemsTableHTML(items)}
+                ${orderSummaryHTML(order)}
+            </div>
+        </div>`;
+    }).join("");
+}
+
+function renderRatings(rated) {
+    const div = document.getElementById("ratingList");
+    if (!rated.length) { div.innerHTML = "<p style='color:#999;font-size:14px;'>No ratings yet.</p>"; return; }
+    const sorted = rated.slice().sort((a, b) => {
+        const tA = Number(a.ratedAt) || Date.parse(a.date) || 0;
+        const tB = Number(b.ratedAt) || Date.parse(b.date) || 0;
+        return tB - tA;
+    });
+    div.innerHTML = sorted.map((o, i) => {
+        const items      = Array.isArray(o.items) ? o.items : [];
+        const ratingVal  = Number(o.rating) || 0;
+        const reviewDate = o.ratedAt ? new Date(Number(o.ratedAt)) : new Date(o.date);
+        const formattedDate = reviewDate.toLocaleDateString("en-US", {
+            year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"
+        });
+        let productHTML = "";
+        if (Array.isArray(o.productNames) && o.productNames.length) {
+            productHTML = o.productNames.map(n =>
+                `<div style="font-size:13px;padding:4px 0;border-bottom:1px solid #f5f5f5;">• ${n}</div>`
+            ).join("");
+        } else if (items.length) {
+            productHTML = items.map(item =>
+                `<div style="font-size:13px;padding:4px 0;border-bottom:1px solid #f5f5f5;">${item.name || "Item"} &times; ${item.quantity}</div>`
+            ).join("");
+        } else {
+            productHTML = "<div style='font-size:13px;color:#999;'>No items</div>";
+        }
+        const checkoutTimeBlock = o.checkoutTime
+            ? `<div style="margin-top:10px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#3d0026;margin-bottom:3px;">Checkout Time</div><div style="font-size:13px;color:#555;">${o.checkoutTime}</div></div>`
+            : "";
+        const reviewFeedback = (o.feedback && o.feedback.trim())
+            ? `<div style="margin-top:12px;padding:10px 12px;background:#f8f9fa;border-radius:6px;font-size:13px;color:#555;"><b>Review Feedback:</b> ${o.feedback.trim()}</div>`
+            : "";
+        const imgNote = Array.isArray(o.feedbackImages) && o.feedbackImages.length
+            ? `<div style="margin-top:8px;font-size:12px;color:#3d0026;font-weight:600;">${o.feedbackImages.length} image(s) attached</div>`
+            : "";
+        return `
+        <div class="order-card rating-card">
+            <div class="order-header">
+                <span class="order-number">Rating #${i + 1} — ${o.name || "N/A"}</span>
+                <span class="status-pill" style="background:#fff8e1;color:#7a5800;font-size:16px;padding:4px 14px;">
+                    <span class="star-display">${starsHTML(ratingVal)}</span> ${ratingVal}/5
+                </span>
+                <span class="order-date">${formattedDate}</span>
+            </div>
+            <div class="order-body">
+                <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🛍️ Products Rated</div>
+                <div style="border:1px solid #f0f0f0;border-radius:6px;padding:4px 10px;margin-bottom:8px;">${productHTML}</div>
+                ${checkoutTimeBlock}
+                ${reviewFeedback}
+                ${imgNote}
+            </div>
+        </div>`;
+    }).join("");
+}
+
+function renderAccounts(users) {
+    const div = document.getElementById("accountsList");
+    if (!users.length) { div.innerHTML = "<p style='color:#999;font-size:14px;'>No accounts registered yet.</p>"; return; }
+    div.innerHTML = users.map(u => `
+        <div class="account-card">
+            <div class="account-name">${u.fullname || "N/A"}</div>
+            <div style="color:#555;font-size:13px;">${u.email || "N/A"}</div>
+            <div style="color:#555;font-size:13px;">${u.mobile || "N/A"}</div>
+            <div class="account-role">${u.role || "user"}</div>
+        </div>`).join("");
+}
+
+async function renderProducts() {
+    const div = document.getElementById("productList");
+    try {
+        const snap = await get(ref(db, "products"));
+        const soldOutStatus = snap.exists() ? snap.val() : {};
+        div.innerHTML = Object.entries(products).map(([id, product]) => {
+            const isSoldOut  = soldOutStatus[id]?.soldOut === true;
+            const toggleClass = isSoldOut ? "active" : "";
+            const toggleText  = isSoldOut ? "MARK AVAILABLE" : "MARK SOLD OUT";
+            return `
+            <div class="product-card ${isSoldOut ? "sold-out" : ""}">
+                <div class="product-info">
+                    <div class="product-id">Product ID: ${id}</div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">₱${product.price}.00</div>
+                </div>
+                <button class="soldout-toggle ${toggleClass}"
+                        onclick="toggleSoldOut('${id}')">${toggleText}</button>
+            </div>`;
+        }).join("");
+    } catch (e) {
+        console.error("Error rendering products:", e);
+        div.innerHTML = "<p style='color:#999;font-size:14px;'>Error loading products.</p>";
+    }
+}
+
+window.toggleSoldOut = async function(productId) {
+    try {
+        const snap = await get(ref(db, `products/${productId}`));
+        const current   = snap.exists() ? snap.val() : {};
+        const newStatus = !current.soldOut;
+        await update(ref(db, `products/${productId}`), { soldOut: newStatus });
+        renderProducts();
+    } catch (e) {
+        console.error("Error toggling sold out status:", e);
+        alert("Failed to update product status. Please try again.");
+    }
+};
+</script>
+</body>
+</html>

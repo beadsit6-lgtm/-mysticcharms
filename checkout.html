@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mystic Charms – Checkout</title>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+        background: linear-gradient(135deg, #fff1f7 0%, #f8e8f0 100%);
+        font-family: Arial;
+        color: #333;
+    }
+
+    .cart-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px 20px;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    .left-nav { display: flex; align-items: center; }
+    .back-link { display: flex; align-items: center; text-decoration: none; }
+    .icon { width: 30px; height: 30px; }
+    .home-text {
+        margin-left: 8px;
+        font-size: 25px;
+        color: #3d0026;
+        font-family: "Times New Roman";
+        font-weight: bold;
+    }
+    .home-text:hover { color: #d63384; }
+    .center-nav { flex: 1; text-align: center; }
+    .cart-title {
+        font-size: 25px;
+        margin: 0;
+        font-weight: 600;
+        font-family: "Times New Roman";
+    }
+
+    .checkout-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    .form-section {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        overflow: visible;
+        height: auto;
+        min-height: 0;
+    }
+    .section-title {
+        font-size: 22px;
+        color: #3d0026;
+        font-family: "Times New Roman";
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #3d0026;
+    }
+    .form-group { margin-bottom: 20px; }
+
+    label {
+        display: block;
+        font-size: 16px;
+        font-family: "Times New Roman";
+        color: #3d0026;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    input, textarea, select {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #3d0026;
+        border-radius: 12px;
+        font-size: 16px;
+        font-family: "Times New Roman";
+        margin-bottom: 5px;
+    }
+    input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #3d0026;
+    }
+    input[readonly] {
+        background: #f8f9fa;
+        color: #3d0026;
+        font-weight: 500;
+        cursor: not-allowed;
+        border-color: #3d0026;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* Address grid layout */
+    .address-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    .address-row .form-group { margin-bottom: 0; }
+
+    .order-summary {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px 0;
+        border: 2px solid #3d0026;
+    }
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-family: "Times New Roman";
+    }
+    .checkout-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .checkout-item:last-child { border-bottom: none; }
+    .summary-item.total {
+        font-size: 22px;
+        font-weight: bold;
+        color: #3d0026;
+        border-top: 2px solid #e9ecef;
+        padding-top: 12px;
+    }
+
+    .payment-method-label {
+        font-size: 16px;
+        font-family: "Times New Roman";
+        color: #3d0026;
+        font-weight: 500;
+        margin-bottom: 14px;
+        display: block;
+    }
+    .payment-cards {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        overflow: visible;
+        height: auto;
+    }
+    .payment-card {
+        flex: 1;
+        min-width: 140px;
+        height: auto;
+        overflow: visible;
+        border: 2px solid #3d0026;
+        border-radius: 14px;
+        padding: 20px 14px;
+        cursor: pointer;
+        text-align: center;
+        background: #fff5f8;
+        user-select: none;
+        position: relative;
+    }
+    .payment-card:hover {
+        border-color: #3d0026;
+        background: #fff5f8;
+    }
+    .payment-card.selected {
+        border-color: #3d0026;
+        background: #fff1f5;
+    }
+    .payment-card.selected::after {
+        content: "✓";
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        width: 22px;
+        height: 22px;
+        background: #3d0026;
+        color: white;
+        border-radius: 50%;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        line-height: 22px;
+    }
+    .payment-card-icon { font-size: 34px; margin-bottom: 8px; }
+    .payment-card-name {
+        font-family: "Times New Roman";
+        font-size: 18px;
+        font-weight: 700;
+        color: #3d0026;
+        margin-bottom: 4px;
+    }
+    .payment-card-desc {
+        font-family: "Times New Roman";
+        font-size: 15px;
+        color: #000000;
+        line-height: 1.5;
+    }
+
+    .gcash-panel {
+        display: none;
+        margin-top: 0;
+    }
+    .gcash-panel.open {
+        display: block;
+        margin-top: 24px;
+    }
+
+    .qr-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #fff1f5;
+        border: 2px solid #3d0026;
+        border-radius: 16px;
+        padding: 32px 20px 26px;
+        margin-bottom: 22px;
+        text-align: center;
+    }
+    .qr-label {
+        font-family: "Times New Roman";
+        font-size: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #3d0026;
+        margin-bottom: 18px;
+        font-weight: 700;
+    }
+    .qr-img-container {
+        background: white;
+        padding: 14px;
+        border-radius: 14px;
+        display: inline-block;
+        margin-bottom: 20px;
+        border: 2px solid #3d0026;
+    }
+    .qr-img-container img {
+        width: 300px;
+        height: 300px;
+        display: block;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+    .qr-placeholder {
+        width: 240px;
+        height: 240px;
+        background: #f8f0f4;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: #3d0026;
+        font-size: 15px;
+        font-family: "Times New Roman";
+    }
+    .qr-placeholder .qr-icon { font-size: 56px; }
+    .qr-account-info {
+        font-family: "Times New Roman";
+        font-size: 18px;
+        color: #3d0026;
+        line-height: 2;
+        font-weight: 500;
+    }
+    .qr-account-info strong { color: #3d0026; font-weight: 700; }
+    .qr-note {
+        margin-top: 10px;
+        font-size: 20px;
+        font-family: "Times New Roman";
+        color: #3d0026;
+        font-style: italic;
+    }
+
+    .receipt-link-box {
+        border: 1.5px solid #e9ecef;
+        border-radius: 15px;
+        padding: 20px 22px;
+        background: #fafafa;
+    }
+    .receipt-link-box p {
+        font-family: "Times New Roman";
+        font-size: 15px;
+        color: #3d0026;
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+    .receipt-link-btn {
+        display: inline-block;
+        background: #3d0026;
+        color: white;
+        font-family: "Times New Roman";
+        font-size: 15px;
+        font-weight: 600;
+        padding: 11px 26px;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: background 0.25s;
+    }
+    .receipt-link-btn:hover { background: #6b0044; }
+
+    .gcash-instructions {
+        margin-top: 18px;
+        border-top: 1px solid #f0e0e8;
+        padding-top: 16px;
+    }
+    .gcash-instructions p {
+        font-family: "Times New Roman";
+        font-size: 16px;
+        color: #3d0026;
+        line-height: 1.75;
+        margin-bottom: 6px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    .gcash-instructions p:last-child { margin-bottom: 0; }
+
+    .gcash-instructions .confirm-note {
+        font-size: 15px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #e0c0cc;
+        color: #5a0035;
+        font-style: italic;
+        line-height: 1.7;
+        max-height: auto;
+    }
+
+    .cash-notice {
+        display: none;
+        margin-top: 0;
+    }
+    .cash-notice.open {
+        display: block;
+        margin-top: 18px;
+    }
+    .cash-notice-inner {
+        background: linear-gradient(135deg, #fff8dc, #fff3c0);
+        border: 2px solid #f0c040;
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 12px;
+        font-family: "Times New Roman";
+        font-size: 14px;
+        color: #7a5800;
+        line-height: 1.6;
+    }
+    .cash-notice-inner .notice-icon { font-size: 22px; flex-shrink: 0; }
+
+    /* Meetup Notice */
+    .meetup-notice {
+        display: none;
+        margin-top: 16px;
+    }
+    .meetup-notice.open {
+        display: block;
+    }
+    .meetup-notice-inner {
+        background: linear-gradient(135deg, #f3e8ff, #ede0ff);
+        border: 2px solid #3d0026;
+        border-radius: 14px;
+        padding: 18px 22px;
+        font-family: "Times New Roman";
+        color: #3d0026;
+        line-height: 1.75;
+    }
+    .meetup-notice-inner .meetup-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .meetup-notice-inner .meetup-body {
+        font-size: 15px;
+    }
+    .meetup-notice-inner .meetup-body a {
+        color: #6b0044;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    .submit-btn {
+        background: #3d0026;
+        color: white;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 25px;
+        font-size: 18px;
+        font-family: "Times New Roman";
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.3s;
+        margin-top: 20px;
+    }
+    .submit-btn:hover { background: #6b0044; }
+    .submit-btn:disabled {
+        background: #e9ecef;
+        color: #999;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .success-message {
+        text-align: center;
+        padding: 50px;
+        background: #d4edda;
+        border-radius: 15px;
+        border: 3px solid #c3e6cb;
+        display: none;
+    }
+
+    /* Required star */
+    .req { color: #c0003c; font-size: 14px; margin-left: 2px; }
+    .optional-tag {
+        font-size: 13px;
+        color: #999;
+        font-style: italic;
+        font-weight: 400;
+        margin-left: 6px;
+    }
+
+    /* ── TABLET (≤ 768px) ── */
+    @media (max-width: 768px) {
+        .checkout-container { padding: 0 14px; margin: 24px auto; }
+        .form-section { padding: 22px 18px; border-radius: 12px; margin-bottom: 18px; }
+        .section-title { font-size: 18px; margin-bottom: 16px; }
+
+        .home-text { font-size: 20px; }
+        .cart-title { font-size: 20px; }
+        .icon { width: 26px; height: 26px; }
+
+        label { font-size: 14px; margin-bottom: 6px; }
+        input, select, textarea { padding: 12px 13px; font-size: 14px; border-radius: 10px; }
+
+        .address-row { grid-template-columns: 1fr; gap: 0; }
+
+        .payment-cards { flex-direction: column; gap: 10px; }
+        .payment-card { padding: 14px 12px; }
+        .payment-card-name { font-size: 16px; }
+        .payment-card-desc { font-size: 13px; }
+
+        .order-summary { padding: 18px 14px; }
+        .summary-item { font-size: 14px; }
+        .summary-item.total { font-size: 18px; }
+        .checkout-item { font-size: 13px; }
+
+        .qr-img-container img { width: 200px; height: 200px; }
+        .qr-account-info { font-size: 15px; }
+        .receipt-link-box { padding: 16px; }
+        .receipt-link-btn { font-size: 14px; padding: 10px 20px; }
+        .gcash-instructions p { font-size: 14px; }
+        .gcash-instructions .confirm-note { font-size: 13px; }
+
+        .meetup-notice-inner .meetup-title { font-size: 15px; }
+        .meetup-notice-inner .meetup-body { font-size: 14px; }
+
+        .submit-btn { font-size: 16px; padding: 15px 30px; }
+    }
+
+    /* ── MOBILE (≤ 480px) ── */
+    @media (max-width: 480px) {
+        .checkout-container { padding: 0 10px; margin: 16px auto; }
+        .form-section { padding: 16px 14px; border-radius: 10px; margin-bottom: 14px; }
+        .section-title { font-size: 16px; margin-bottom: 14px; padding-bottom: 8px; }
+
+        .cart-nav { padding: 14px 12px; }
+        .home-text { font-size: 17px; }
+        .cart-title { font-size: 17px; }
+        .icon { width: 22px; height: 22px; }
+
+        .form-group { margin-bottom: 14px; }
+        label { font-size: 13px; margin-bottom: 5px; }
+        input, select, textarea { padding: 11px 12px; font-size: 14px; border-radius: 8px; }
+
+        .address-row { grid-template-columns: 1fr; gap: 0; }
+
+        .payment-cards { flex-direction: column; gap: 10px; }
+        .payment-card { padding: 12px 10px; border-radius: 10px; }
+        .payment-card-name { font-size: 15px; }
+        .payment-card-desc { font-size: 13px; }
+
+        .order-summary { padding: 14px 12px; border-radius: 10px; }
+        .summary-item { font-size: 13px; margin-bottom: 8px; }
+        .summary-item.total { font-size: 16px; }
+        .checkout-item { padding: 10px 0; font-size: 13px; }
+
+        .qr-wrapper { padding: 20px 12px 18px; }
+        .qr-label { font-size: 12px; letter-spacing: 1px; }
+        .qr-img-container { padding: 10px; }
+        .qr-img-container img { width: 180px; height: 180px; }
+        .qr-account-info { font-size: 13px; line-height: 1.8; }
+        .receipt-link-box { padding: 14px 12px; }
+        .receipt-link-btn { font-size: 13px; padding: 9px 18px; }
+        .gcash-instructions p { font-size: 13px; line-height: 1.7; }
+        .gcash-instructions .confirm-note { font-size: 12px; }
+
+        .cash-notice-inner { font-size: 13px; padding: 12px 14px; }
+        .meetup-notice-inner { padding: 14px 14px; }
+        .meetup-notice-inner .meetup-title { font-size: 14px; }
+        .meetup-notice-inner .meetup-body { font-size: 13px; }
+
+        .submit-btn { font-size: 15px; padding: 14px 20px; border-radius: 20px; margin-top: 14px; }
+
+        .success-message { padding: 30px 18px; }
+    }
+
+    /* ── LANDSCAPE PHONE (short + wide) ── */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .checkout-container { margin: 10px auto; padding: 0 12px; }
+        .form-section { padding: 14px 16px; margin-bottom: 12px; }
+        .section-title { font-size: 15px; margin-bottom: 10px; }
+        .form-group { margin-bottom: 10px; }
+        label { font-size: 13px; }
+        input, select, textarea { padding: 9px 12px; font-size: 13px; }
+        .payment-cards { flex-direction: row; gap: 8px; }
+        .submit-btn { padding: 12px 20px; font-size: 14px; }
+        .qr-img-container img { width: 140px; height: 140px; }
+    }
+</style>
+</head>
+<body>
+
+<nav class="cart-nav">
+    <div class="left-nav">
+        <a href="index.html" class="back-link">
+            <img src="back.png" alt="Back" class="icon">
+            <span class="home-text">Home</span>
+        </a>
+    </div>
+    <div class="center-nav">
+        <h2 class="cart-title">Check-out</h2>
+    </div>
+</nav>
+
+<div class="checkout-container">
+    <form id="checkoutForm">
+
+        <div class="form-section">
+            <h3 class="section-title">Customer Information</h3>
+            <div class="form-group">
+                <label>Full Name <span class="req">*</span></label>
+                <input type="text" id="customerName" required readonly>
+            </div>
+            <div class="form-group">
+                <label>Phone Number <span class="req">*</span></label>
+                <input type="tel" id="phoneNumber" placeholder="09xxxxxxxxx" required readonly>
+            </div>
+            <div class="form-group">
+                <label>Email (from your account)</label>
+                <input type="email" id="customerEmail" readonly>
+            </div>
+            <div class="form-group">
+                <label>Delivery / Meetup <span class="req">*</span></label>
+                <select id="deliveryMethod" required>
+                    <option value="">Choose option</option>
+                    <option value="meetup">Meetup (Daet, Camarines Norte – FREE)</option>
+                    <option value="delivery">Delivery (₱50 fee)</option>
+                </select>
+            </div>
+
+            <!-- Meetup notice -->
+            <div class="meetup-notice" id="meetupNotice">
+                <div class="meetup-notice-inner">
+                    <div class="meetup-title">Meetup Information</div>
+                    <div class="meetup-body">
+                        For meetup location and schedule, please contact us through our social media pages or visit the <strong>Contact Us</strong> section in Settings. We'll coordinate the details with you after your order is placed.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery address fields (shown only when Delivery is selected) -->
+            <div id="addressGroup" style="display:none;">
+                <div class="address-row">
+                    <div class="form-group">
+                        <label>Municipality / City <span class="req">*</span></label>
+                        <input type="text" id="addrCity" value="Daet, Camarines Norte" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Barangay <span class="req">*</span></label>
+                        <select id="addrBarangay">
+                            <option value="">Select Barangay</option>
+                            <option>Alawihao</option>
+                            <option>Awitan</option>
+                            <option>Bagasbas</option>
+                            <option>Barangay I (Pob.)</option>
+                            <option>Barangay II (Pob.)</option>
+                            <option>Barangay III (Pob.)</option>
+                            <option>Barangay IV (Pob.)</option>
+                            <option>Barangay V (Pob.)</option>
+                            <option>Barangay VI (Pob.)</option>
+                            <option>Barangay VII (Pob.)</option>
+                            <option>Barangay VIII (Pob.)</option>
+                            <option>Camambugan</option>
+                            <option>Cobangbang (Iraya)</option>
+                            <option>Dogongan</option>
+                            <option>Gahonon</option>
+                            <option>Gubat</option>
+                            <option>Lag-on</option>
+                            <option>Lamon</option>
+                            <option>Lapplicatan</option>
+                            <option>Magang</option>
+                            <option>Mambalite</option>
+                            <option>Mancruz (Mañacruz)</option>
+                            <option>Pamorangon</option>
+                            <option>San Isidro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Purok / Street <span class="req">*</span></label>
+                    <input type="text" id="addrStreet" placeholder="e.g. Purok 3, Calle Luna, Sitio Maliwanag..." maxlength="150">
+                </div>
+                <div class="form-group">
+                    <label>Near / Landmark <span class="req">*</span></label>
+                    <input type="text" id="addrLandmark" placeholder="e.g. near Jollibee, beside the chapel, in front of the school..." maxlength="150">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">Order Summary</h3>
+            <div class="order-summary">
+                <div id="orderItems"></div>
+                <div class="summary-item">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₱0.00</span>
+                </div>
+                <div class="summary-item" id="deliveryFeeRow" style="display:none;">
+                    <span>Delivery Fee:</span>
+                    <span>₱50.00</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Total:</span>
+                    <span id="grandTotal">₱0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">Payment Method</h3>
+
+            <span class="payment-method-label">Choose how you'll pay <span class="req">*</span></span>
+            <div class="payment-cards">
+
+                <div class="payment-card" id="cardCash" onclick="selectPayment('cash')">
+                    <div class="payment-card-name">Cash</div>
+                    <div class="payment-card-desc">Pay upon meetup<br>or delivery</div>
+                </div>
+
+                <div class="payment-card" id="cardGcash" onclick="selectPayment('gcash')">
+                    <div class="payment-card-name">GCash</div>
+                    <div class="payment-card-desc">Online payment<br>via QR code</div>
+                </div>
+
+            </div>
+
+            <div class="cash-notice" id="cashNotice">
+                <div class="cash-notice-inner">
+                    <span>Please prepare the <strong>exact amount</strong> when you meet up or receive your delivery. No change will be given.</span>
+                </div>
+            </div>
+
+            <div class="gcash-panel" id="gcashPanel">
+
+                <div class="qr-wrapper">
+                    <div class="qr-label">Scan to Pay via GCash</div>
+                    <div class="qr-img-container">
+                        <img src="Gcash.jpg" alt="GCash QR Code"
+                             onerror="this.style.display='none'; document.getElementById('qrPlaceholder').style.display='flex';">
+                        <div class="qr-placeholder" id="qrPlaceholder" style="display:none;">
+                            <span style="font-size:15px; color:#3d0026;">qr.png</span>
+                            <span style="font-size:12px; color:#7a3050;">(place your QR image here)</span>
+                        </div>
+                    </div>
+                    <div class="qr-account-info">
+                        <strong>GCash Name:</strong> R** AS****E M.<br>
+                        <strong>GCash Number:</strong> 63 929 537 ****
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Payment Receipt</label>
+                    <div class="receipt-link-box">
+                        <p>Please upload your payment screenshot or receipt using the link below.</p>
+                        <a href="https://forms.gle/aadUAGW7UfEYpYka7" target="_blank" class="receipt-link-btn">
+                            Upload Receipt Here
+                        </a>
+
+                        <div class="gcash-instructions">
+                            <p>1. Send the exact total amount to the GCash number above.</p>
+                            <p>2. Take a screenshot of your payment confirmation.</p>
+                            <p>3. Click the link above and upload your screenshot.</p>
+                            <p>4. Click <strong>Place Order</strong> below to submit your order.</p>
+                            <p class="confirm-note">Your order will be confirmed once we have received and verified your payment. Please allow some time for confirmation.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Place Order</button>
+    </form>
+
+    <div id="successMessage" class="success-message">
+        <h3 style="color:#3d0026; font-family:'Times New Roman'; margin-bottom:15px;">Order Confirmed!</h3>
+        <p style="font-size:18px; color:#3d0026;" id="successNote">Thank you! We'll update you soon. Mystic Charms ♥</p>
+        <p style="margin-top:20px;">
+            <a href="index.html" style="color:#3d0026; text-decoration:none; font-weight:bold;"><u>🡰 Continue Shopping!</u></a>
+        </p>
+        <div style="margin-top:30px;">
+            <a href="orders.html"
+               style="display:inline-block; padding:15px 30px; background:#3d0026; color:white; border-radius:25px; font-size:16px; font-family:'Times New Roman'; text-decoration:none;">
+                View My Orders
+            </a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCumgRBwiwvh0GL1B9DF2OpRDMigVa6y5g",
+    authDomain:        "beadsncharmsshop-0.firebaseapp.com",
+    projectId:         "beadsncharmsshop-0",
+    storageBucket:     "beadsncharmsshop-0.firebasestorage.app",
+    messagingSenderId: "803662118321",
+    appId:             "1:803662118321:web:0b1dbf0545f7cdfc5bd190",
+    measurementId:     "G-TXTWGRXXDK",
+    databaseURL:       "https://beadsncharmsshop-0-default-rtdb.firebaseio.com"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+let currentUser     = null;
+let checkoutItems   = [];
+let subtotal        = 0;
+let selectedPayment = "";
+
+window.selectPayment = function(method) {
+    selectedPayment = method;
+    document.getElementById("cardCash").classList.toggle("selected",  method === "cash");
+    document.getElementById("cardGcash").classList.toggle("selected", method === "gcash");
+    document.getElementById("cashNotice").classList.toggle("open",  method === "cash");
+    document.getElementById("gcashPanel").classList.toggle("open",  method === "gcash");
+};
+
+function formatAmount(v) { return `₱${Number(v).toFixed(2)}`; }
+
+function formatCheckoutTime() {
+    return new Date().toLocaleString("en-US", {
+        year:   "numeric",
+        month:  "long",
+        day:    "numeric",
+        hour:   "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+    });
+}
+
+async function initCheckout() {
+    try {
+        const session = JSON.parse(localStorage.getItem("userLogin"));
+        if (!session) { alert("Please login first."); window.location.href = "login.html"; return; }
+
+        const usersSnap = await get(ref(db, "users"));
+        if (!usersSnap.exists()) { alert("No users found."); return; }
+
+        const users = Object.values(usersSnap.val());
+        currentUser = users.find(u =>
+            (session.email  && u.email  === session.email)  ||
+            (session.mobile && u.mobile === session.mobile)
+        );
+
+        if (!currentUser) {
+            alert("Account not found. Please login again.");
+            localStorage.removeItem("userLogin");
+            window.location.href = "login.html";
+            return;
+        }
+
+        document.getElementById("customerName").value  = currentUser.fullname || "";
+        document.getElementById("phoneNumber").value   = currentUser.mobile   || "";
+        document.getElementById("customerEmail").value = currentUser.email    || "";
+
+        const products = {
+            "001": { name: "Pink Mirage Bracelet",    price: 40 },
+            "002": { name: "Pastel Dream Bracelet",    price: 35 },
+            "003": { name: "Starlit Bloom Bracelet",   price: 35 },
+            "004": { name: "Flutter Hearts Bracelet",  price: 30 },
+            "005": { name: "Lovewing Bracelet",        price: 30 },
+            "006": { name: "Dewdrop Bracelet",         price: 35 },
+            "011": { name: "Blossom Buddy Keychain",   price: 40 },
+            "012": { name: "Daydream Keychain",        price: 75 },
+            "013": { name: "Sunny Charm Keychain",     price: 35 }
+        };
+
+        const direct    = JSON.parse(localStorage.getItem("directCheckoutProduct"));
+        const userLogin = JSON.parse(localStorage.getItem("userLogin"));
+        let cart = [];
+        if (userLogin) {
+            cart = JSON.parse(localStorage.getItem(`cart_${userLogin.userId}`) || "[]");
+        } else {
+            cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        }
+
+        const checkoutFromCart   = localStorage.getItem("checkoutFromCart");
+        const checkoutFromDirect = localStorage.getItem("checkoutFromDirect");
+        localStorage.removeItem("checkoutFromCart");
+        localStorage.removeItem("checkoutFromDirect");
+
+        if (checkoutFromCart === "true") {
+            checkoutItems = cart.filter(i => products[i.id]).map(item => ({
+                id: item.id, name: products[item.id].name,
+                price: products[item.id].price, quantity: item.quantity || 1
+            }));
+        } else if (checkoutFromDirect === "true" && direct?.id && products[direct.id]) {
+            checkoutItems = [{ id: direct.id, name: products[direct.id].name,
+                price: products[direct.id].price, quantity: direct.quantity || 1 }];
+        } else {
+            if (cart.length > 0) {
+                checkoutItems = cart.filter(i => products[i.id]).map(item => ({
+                    id: item.id, name: products[item.id].name,
+                    price: products[item.id].price, quantity: item.quantity || 1
+                }));
+            } else if (direct?.id && products[direct.id]) {
+                checkoutItems = [{ id: direct.id, name: products[direct.id].name,
+                    price: products[direct.id].price, quantity: direct.quantity || 1 }];
+            } else {
+                checkoutItems = [];
+            }
+        }
+
+        renderOrder();
+    } catch (err) {
+        console.error(err);
+        alert("Error loading checkout.");
+    }
+}
+
+function renderOrder() {
+    const container = document.getElementById("orderItems");
+    container.innerHTML = "";
+    subtotal = 0;
+
+    if (checkoutItems.length === 0) {
+        container.innerHTML = "<p>No items selected.</p>";
+        document.querySelector(".submit-btn").disabled = true;
+        return;
+    }
+
+    checkoutItems.forEach(item => {
+        const total = item.price * item.quantity;
+        subtotal += total;
+        container.innerHTML += `
+            <div class="checkout-item">
+                <div>
+                    <strong>${item.name}</strong><br>
+                    Qty: ${item.quantity} × ${formatAmount(item.price)}
+                </div>
+                <div>${formatAmount(total)}</div>
+            </div>`;
+    });
+
+    document.getElementById("subtotal").textContent = formatAmount(subtotal);
+    updateTotal();
+}
+
+function updateTotal() {
+    const method = document.getElementById("deliveryMethod").value;
+    const feeRow = document.getElementById("deliveryFeeRow");
+    let total = subtotal;
+    if (method === "delivery") {
+        total += 50;
+        feeRow.style.display = "flex";
+    } else {
+        feeRow.style.display = "none";
+    }
+    document.getElementById("grandTotal").textContent = formatAmount(total);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    initCheckout();
+
+    document.getElementById("deliveryMethod").addEventListener("change", function () {
+        const addressGroup = document.getElementById("addressGroup");
+        const meetupNotice = document.getElementById("meetupNotice");
+        const addrBarangay = document.getElementById("addrBarangay");
+        const addrStreet   = document.getElementById("addrStreet");
+        const addrLandmark = document.getElementById("addrLandmark");
+
+        if (this.value === "delivery") {
+            addressGroup.style.display = "block";
+            meetupNotice.classList.remove("open");
+            addrBarangay.required = true;
+            addrStreet.required   = true;
+            addrLandmark.required = true;
+        } else if (this.value === "meetup") {
+            addressGroup.style.display = "none";
+            meetupNotice.classList.add("open");
+            addrBarangay.required = false;
+            addrStreet.required   = false;
+            addrLandmark.required = false;
+            addrBarangay.value    = "";
+            addrStreet.value      = "";
+            addrLandmark.value    = "";
+        } else {
+            addressGroup.style.display = "none";
+            meetupNotice.classList.remove("open");
+            addrBarangay.required = false;
+            addrStreet.required   = false;
+            addrLandmark.required = false;
+        }
+
+        updateTotal();
+    });
+
+    document.getElementById("checkoutForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (checkoutItems.length === 0) { alert("No items to checkout."); return; }
+
+        const delivery = document.getElementById("deliveryMethod").value;
+
+        if (!delivery)        return alert("Please select a delivery / meetup option.");
+        if (!selectedPayment) return alert("Please choose a payment method.");
+
+        // Validate delivery address fields
+        let addressData = null;
+        if (delivery === "delivery") {
+            const barangay = document.getElementById("addrBarangay").value.trim();
+            const city     = document.getElementById("addrCity").value.trim();
+            const street   = document.getElementById("addrStreet").value.trim();
+            const landmark = document.getElementById("addrLandmark").value.trim();
+
+            if (!barangay) return alert("Please select your Barangay.");
+            if (!street)   return alert("Please enter your Purok or Street.");
+            if (!landmark) return alert("Please enter a nearby landmark or place.");
+
+            addressData = { barangay, city, street, landmark };
+        }
+
+        const submitBtn = document.querySelector(".submit-btn");
+        submitBtn.disabled    = true;
+        submitBtn.textContent = "Placing order…";
+
+        try {
+            const session    = JSON.parse(localStorage.getItem("userLogin"));
+            const safeUserId = session?.userId || "guest";
+            const orderId    = "order_" + Date.now();
+
+            const productNames = checkoutItems.map(item => `${item.name} ×${item.quantity}`);
+            const checkoutTime = formatCheckoutTime();
+
+            // Build a human-readable address string for backward compatibility
+            let addressString = "";
+            if (addressData) {
+                addressString = [
+                    `Brgy. ${addressData.barangay}`,
+                    addressData.city,
+                    addressData.street,
+                    addressData.landmark ? `(Near: ${addressData.landmark})` : ""
+                ].filter(Boolean).join(", ");
+            }
+
+            // ── Delivery fee saved as its own field ──
+            const deliveryFee = delivery === "delivery" ? 50 : 0;
+
+            const order = {
+                id:            orderId,
+                userId:        safeUserId,
+                name:          currentUser.fullname || "Unknown",
+                phone:         currentUser.mobile   || "N/A",
+                email:         currentUser.email    || "N/A",
+                items:         checkoutItems,
+                productNames:  productNames,
+                checkoutTime:  checkoutTime,
+                delivery,
+                // Structured address object
+                addressData:   delivery === "delivery" ? addressData : null,
+                // Flat string for display convenience
+                address:       addressString,
+                subtotal,
+                deliveryFee,   // ← NEW: always saved (0 for meetup, 50 for delivery)
+                total:         subtotal + deliveryFee,
+                paymentMethod: selectedPayment,
+                paymentStatus: selectedPayment === "gcash" ? "pending_verification" : "cash_on_" + delivery,
+                status:        selectedPayment === "gcash" ? "pending_verification" : "confirmed",
+                date:          new Date().toISOString()
+            };
+
+            await set(ref(db, "orders/" + orderId), order);
+
+            localStorage.removeItem("cart");
+            localStorage.removeItem("directCheckoutProduct");
+            const userLogin = JSON.parse(localStorage.getItem("userLogin"));
+            if (userLogin) localStorage.removeItem(`cart_${userLogin.userId}`);
+
+            document.getElementById("successNote").textContent =
+                selectedPayment === "gcash"
+                    ? "Thank you! We'll verify your GCash payment and confirm your order soon. Mystic Charms ♥"
+                    : "Thank you! Please prepare the exact cash amount for your " + delivery + ". Mystic Charms ♥";
+
+            document.getElementById("checkoutForm").style.display  = "none";
+            document.getElementById("successMessage").style.display = "block";
+
+        } catch (error) {
+            console.error("SAVE ERROR:", error);
+            alert("ERROR: " + error.message);
+            submitBtn.disabled    = false;
+            submitBtn.textContent = "Place Order";
+        }
+    });
+});
+</script>
+
+</body>
+</html>
